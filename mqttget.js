@@ -1,10 +1,17 @@
+// const Influx = require('influx');
+// const influx = new Influx.InfluxDB({
+//     database: 'rama',
+//     host: '192.168.1.28',
+//     port: 8086
+// });
+
 import {
   InfluxDB,
   Point,
   HttpError,
   consoleLogger,
 } from "@influxdata/influxdb-client";
-import { url, token, org, bucket } from "./env.mjs";
+import { url, token, org, bucket } from "./env.js";
 import { hostname } from "node:os";
 import mqtt from "mqtt";
 
@@ -20,7 +27,7 @@ function writeDBcouter(
   econsum
 ) {
   // write point with a custom timestamp
- 
+
   const point = new Point(deviceName)
     .tag("Device", deviceName)
     .floatField("cpu_load", cpu_load)
@@ -34,27 +41,24 @@ function writeDBcouter(
 
   const writeApi = new InfluxDB({ url, token }).getWriteApi(org, bucket, "ns");
   // setup default tags for all writes through this API
-  writeApi.useDefaultTags({ location: hostname() });
 
   writeApi.writePoint(point);
 
   writeApi
     .close()
     .then(() => {
-    //   console.log("FINISHED");
+      //   console.log("FINISHED");
     })
     .catch((e) => {
       console.error(e);
       console.log("Finished ERROR");
     });
-
- 
 }
 
-const MQTT_SERVER = "18.143.83.11";
+const MQTT_SERVER = "192.168.1.44";
 const MQTT_PORT = "1883";
-const MQTT_USER = "";
-const MQTT_PASSWORD = "";
+const MQTT_USER = "daikinmqttbroker";
+const MQTT_PASSWORD = "Daikintdpk2022";
 
 // Connect MQTT
 var client = mqtt.connect({
@@ -107,11 +111,9 @@ client.on("message", function (topic, message) {
       data.E_SUM,
       data.E_CONSU_SUM
     );
-   
   } catch (ex) {
     console.log(ex);
   } finally {
     //perform this code regardless
   }
- 
 });
